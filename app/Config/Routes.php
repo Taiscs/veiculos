@@ -11,6 +11,7 @@ use App\Controllers\Locacoes;
 use App\Controllers\Manutencoes;
 
 /** @var RouteCollection $routes */
+
 // Rota principal apontando direto para a tela de Login
 $routes->get('/', [Auth::class, 'index']);
 
@@ -21,6 +22,7 @@ $routes->get('logout', [Auth::class, 'logout']);
 
 // Exemplo de Rotas Protegidas por Permissão
 $routes->group('', ['filter' => 'permission'], function($routes) {
+
     // Dashboard
     $routes->get('dashboard', [Home::class, 'index']);
 
@@ -29,9 +31,9 @@ $routes->group('', ['filter' => 'permission'], function($routes) {
     $routes->post('modelos/salvar', [Modelos::class, 'salvar'], ['filter' => 'permission:cad_modelo']);
     $routes->get('modelos/excluir/(:num)', [Modelos::class, 'excluir'], ['filter' => 'permission:cad_modelo']);
 
-    // BI / Relatórios
-    $routes->get('bi', [Bi::class, 'index'], ['filter' => 'permission:relatorio_financeiro']);
-    $routes->get('relatorios/bi', [Bi::class, 'index'], ['filter' => 'permission:relatorio_financeiro']);
+    // BI / Relatórios (Ajustado para relatorio_powerbi)
+    $routes->get('bi', [Bi::class, 'index'], ['filter' => 'permission:relatorio_powerbi']);
+    $routes->get('relatorios/bi', [Bi::class, 'index'], ['filter' => 'permission:relatorio_powerbi']);
 
     // Clientes
     $routes->get('clientes', [Pessoas::class, 'clientes'], ['filter' => 'permission:cad_cliente']);
@@ -46,7 +48,7 @@ $routes->group('', ['filter' => 'permission'], function($routes) {
     // Exclusão genérica de pessoas
     $routes->get('pessoas/excluir/(:num)/(:segment)', [Pessoas::class, 'excluir']);
 
-    // Frota de Carros (Incluindo a rota da Modal Executiva)
+    // Frota de Carros
     $routes->get('carros', [Carros::class, 'index'], ['filter' => 'permission:cad_carro']);
     $routes->post('carros/salvar', [Carros::class, 'salvar'], ['filter' => 'permission:cad_carro']);
     $routes->get('carros/excluir/(:num)', [Carros::class, 'excluir'], ['filter' => 'permission:cad_carro']);
