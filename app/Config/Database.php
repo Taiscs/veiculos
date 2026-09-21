@@ -4,29 +4,15 @@ namespace Config;
 
 use CodeIgniter\Database\Config;
 
-/**
- * Database Configuration
- */
 class Database extends Config
 {
-    /**
-     * The directory that holds the Migrations and Seeds directories.
-     */
     public string $filesPath = APPPATH . 'Database' . DIRECTORY_SEPARATOR;
 
-    /**
-     * Default connection group.
-     */
     public string $defaultGroup = 'default';
 
-    /**
-     * Default database connection.
-     *
-     * @var array<string, mixed>
-     */
     public array $default = [
         'DSN'          => '',
-        'hostname'     => 'localhost',
+        'hostname'     => '',
         'username'     => '',
         'password'     => '',
         'database'     => '',
@@ -37,7 +23,7 @@ class Database extends Config
         'charset'      => 'utf8mb4',
         'DBCollat'     => 'utf8mb4_general_ci',
         'swapPre'      => '',
-        'encrypt'      => false,
+        'encrypt'      => true,
         'compress'     => false,
         'strictOn'     => false,
         'failover'     => [],
@@ -51,11 +37,6 @@ class Database extends Config
         ],
     ];
 
-    /**
-     * Database connection used for automated tests.
-     *
-     * @var array<string, mixed>
-     */
     public array $tests = [
         'DSN'         => '',
         'hostname'    => '127.0.0.1',
@@ -93,26 +74,13 @@ class Database extends Config
             return;
         }
 
-        /*
-         * Na Render, usa as variáveis de ambiente configuradas
-         * no painel do serviço.
-         */
-        $hostname = getenv('database.default.hostname');
-
-        if (!empty($hostname)) {
-            $this->default['hostname'] = $hostname;
-            $this->default['username'] = getenv('database.default.username') ?: '';
-            $this->default['password'] = getenv('database.default.password') ?: '';
-            $this->default['database'] = getenv('database.default.database') ?: '';
-            $this->default['port']     = (int) (getenv('database.default.port') ?: 3306);
-            $this->default['DBDriver'] = 'MySQLi';
-
-            /*
-             * Aiven exige conexão SSL.
-             *
-             * true faz o MySQLi iniciar uma conexão criptografada.
-             */
-            $this->default['encrypt'] = true;
-        }
+        // Configuração do banco de produção (Render + Aiven)
+        $this->default['hostname'] = getenv('database.default.hostname') ?: '';
+        $this->default['username'] = getenv('database.default.username') ?: '';
+        $this->default['password'] = getenv('database.default.password') ?: '';
+        $this->default['database'] = getenv('database.default.database') ?: '';
+        $this->default['port']     = (int) (getenv('database.default.port') ?: 3306);
+        $this->default['DBDriver'] = 'MySQLi';
+        $this->default['encrypt']  = true;
     }
 }
