@@ -18,13 +18,17 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Habilita o módulo mod_rewrite do Apache
 RUN a2enmod rewrite
 
-# HABILITA O .HTACCESS (AllowOverride All)
-RUN sed -i 's/AllowOverride None/AllowOverride All/g' /etc/apache2/apache2.conf
-
-# Aponta o DocumentRoot do Apache para a pasta /public do CodeIgniter
-ENV APACHE_DOCUMENT_ROOT /var/www/html/public
-RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
-RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
+# Configura o VirtualHost apontando para /public com AllowOverride All explicitamente
+RUN echo '<VirtualHost *:80>\n\
+    DocumentRoot /var/www/html/public\n\
+    <Directory /var/www/html/public>\n\
+        Options Indexes FollowSymLinks\n\
+        AllowOverride All\n\
+        Require all granted\n\
+    </Directory>\n\
+    ErrorLog ${APACHE_LOG_DIR}/error.log\n\
+    CustomLog ${APACHE_LOG_DIR}/access.log combined\n\
+</VirtualHost>' > /etc/apache2/sites-available/000-default.conf
 
 WORKDIR /var/www/html
 COPY . /var/www/html
