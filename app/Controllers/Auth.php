@@ -1,5 +1,15 @@
 <?php
 
+
+$ca = '/etc/secrets/aiven-ca.pem';
+
+die(
+    'CA existe: ' . (file_exists($ca) ? 'SIM' : 'NAO')
+    . '<br>CA legivel: ' . (is_readable($ca) ? 'SIM' : 'NAO')
+    . '<br>Tamanho: ' . (file_exists($ca) ? filesize($ca) : 0)
+);
+
+
 namespace App\Controllers;
 
 use App\Controllers\BaseController;
