@@ -42,4 +42,4 @@ RUN chown -R www-data:www-data /var/www/html/writable /var/www/html/public
 EXPOSE 80
 
 
-CMD ["apache2-foreground"]
+CMD ["sh", "-c", "cp /etc/secrets/aiven-ca.pem /tmp/aiven-ca.pem && chmod 644 /tmp/aiven-ca.pem && exec apache2-foreground"]
