@@ -3,7 +3,7 @@
 use CodeIgniter\Router\RouteCollection;
 use App\Controllers\Home;
 use App\Controllers\Auth;
-use App\Controllers\Carros;     // Adicionado (faltava esta importação!)
+use App\Controllers\Carros;
 use App\Controllers\Modelos;
 use App\Controllers\Bi;
 use App\Controllers\Pessoas;
@@ -11,7 +11,8 @@ use App\Controllers\Locacoes;
 use App\Controllers\Manutencoes;
 
 /** @var RouteCollection $routes */
-$routes->get('/', [Home::class, 'index']);
+// Rota principal apontando direto para a tela de Login
+$routes->get('/', [Auth::class, 'index']);
 
 // Rotas de Autenticação (Públicas)
 $routes->get('login', [Auth::class, 'index']);
