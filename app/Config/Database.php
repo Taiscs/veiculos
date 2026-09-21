@@ -14,7 +14,7 @@ class Database extends Config
         'DSN'          => '',
         'hostname'     => 'mysql-3e7d387f-taiscampos2118-41ca.b.aivencloud.com',
         'username'     => 'avnadmin',
-        'password'     => '',
+        'password'     => 'AVNS_Opu3hvqnjIsmAOx7oi1',
         'database'     => 'locadora_veiculos',
         'DBDriver'     => 'MySQLi',
         'DBPrefix'     => '',
