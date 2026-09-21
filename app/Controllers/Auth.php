@@ -8,9 +8,9 @@ class Auth extends BaseController
 {
     public function index()
     {
-        // Se já estiver logado, manda para o sistema
+        // Se já estiver logado, vai direto para o BI
         if (session()->get('logado')) {
-            return redirect()->to('/');
+            return redirect()->to('/bi');
         }
 
         return view('auth/login');
@@ -37,7 +37,7 @@ class Auth extends BaseController
             ->get()
             ->getRowArray();
 
-        // Verifica se o usuário existe e se a senha confere
+        // Verifica usuário e senha
         if ($usuario && password_verify($senha, $usuario['senha'])) {
 
             $session->set([
@@ -49,12 +49,13 @@ class Auth extends BaseController
                 'logado'     => true,
             ]);
 
-            return redirect()->to('/');
+            // Após o login, vai para o BI
+            return redirect()->to('/bi');
         }
 
         $session->setFlashdata('error', 'E-mail ou senha incorretos.');
 
-        return redirect()->back()->withInput();
+        return redirect()->to('/login')->withInput();
     }
 
     public function logout()
