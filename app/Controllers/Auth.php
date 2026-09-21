@@ -18,14 +18,7 @@ class Auth extends BaseController
 
     public function login()
     {
-        // TESTE TEMPORÁRIO DO CERTIFICADO SSL DA AIVEN
-       $ca = '/tmp/aiven-ca.pem';
-
-        die(
-            'CA existe: ' . (file_exists($ca) ? 'SIM' : 'NAO')
-            . '<br>CA legivel: ' . (is_readable($ca) ? 'SIM' : 'NAO')
-            . '<br>Tamanho: ' . (file_exists($ca) ? filesize($ca) : 0)
-        );
+     
 
         $session = session();
         $db      = \Config\Database::connect();
