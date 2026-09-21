@@ -71,16 +71,6 @@ class Database extends Config
 
         if (ENVIRONMENT === 'testing') {
             $this->defaultGroup = 'tests';
-            return;
         }
-
-        // Configuração do banco de produção (Render + Aiven)
-        $this->default['hostname'] = getenv('database.default.hostname') ?: '';
-        $this->default['username'] = getenv('database.default.username') ?: '';
-        $this->default['password'] = getenv('database.default.password') ?: '';
-        $this->default['database'] = getenv('database.default.database') ?: '';
-        $this->default['port']     = (int) (getenv('database.default.port') ?: 3306);
-        $this->default['DBDriver'] = 'MySQLi';
-        $this->default['encrypt']  = false;
     }
 }
