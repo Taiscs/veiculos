@@ -27,7 +27,7 @@ class Database extends Config
         'encrypt'      => [
             'ssl_key'    => null,
             'ssl_cert'   => null,
-            'ssl_ca'     => '/etc/secrets/aiven-ca.pem',
+            'ssl_ca' => '/tmp/aiven-ca.pem',
             'ssl_capath' => null,
             'ssl_cipher' => null,
             'ssl_verify' => true,
