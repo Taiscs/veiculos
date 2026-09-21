@@ -10,17 +10,12 @@ class Database extends Config
 
     public string $defaultGroup = 'default';
 
-    /**
-     * Conexão principal
-     * Os dados de acesso são fornecidos pelas variáveis
-     * de ambiente configuradas na Render.
-     */
     public array $default = [
         'DSN'          => '',
-        'hostname'     => '',
-        'username'     => '',
+        'hostname'     => 'mysql-3e7d387f-taiscampos2118-41ca.b.aivencloud.com',
+        'username'     => 'avnadmin',
         'password'     => '',
-        'database'     => '',
+        'database'     => 'locadora_veiculos',
         'DBDriver'     => 'MySQLi',
         'DBPrefix'     => '',
         'pConnect'     => false,
@@ -29,7 +24,6 @@ class Database extends Config
         'DBCollat'     => 'utf8mb4_general_ci',
         'swapPre'      => '',
 
-        // SSL obrigatório na Aiven
         'encrypt'      => [
             'ssl_key'    => null,
             'ssl_cert'   => null,
@@ -42,7 +36,7 @@ class Database extends Config
         'compress'     => false,
         'strictOn'     => false,
         'failover'     => [],
-        'port'         => 3306,
+        'port'         => 10472,
         'numberNative' => false,
         'foundRows'    => false,
 
@@ -53,9 +47,6 @@ class Database extends Config
         ],
     ];
 
-    /**
-     * Conexão utilizada nos testes automatizados.
-     */
     public array $tests = [
         'DSN'         => '',
         'hostname'    => '127.0.0.1',
@@ -91,6 +82,14 @@ class Database extends Config
 
         if (ENVIRONMENT === 'testing') {
             $this->defaultGroup = 'tests';
+            return;
+        }
+
+        // A senha permanece protegida na variável de ambiente da Render.
+        $password = getenv('database.default.password');
+
+        if ($password !== false && $password !== '') {
+            $this->default['password'] = $password;
         }
     }
 }
