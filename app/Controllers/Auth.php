@@ -1,15 +1,5 @@
 <?php
 
-
-$ca = '/etc/secrets/aiven-ca.pem';
-
-die(
-    'CA existe: ' . (file_exists($ca) ? 'SIM' : 'NAO')
-    . '<br>CA legivel: ' . (is_readable($ca) ? 'SIM' : 'NAO')
-    . '<br>Tamanho: ' . (file_exists($ca) ? filesize($ca) : 0)
-);
-
-
 namespace App\Controllers;
 
 use App\Controllers\BaseController;
@@ -28,6 +18,15 @@ class Auth extends BaseController
 
     public function login()
     {
+        // TESTE TEMPORÁRIO DO CERTIFICADO SSL DA AIVEN
+        $ca = '/etc/secrets/aiven-ca.pem';
+
+        die(
+            'CA existe: ' . (file_exists($ca) ? 'SIM' : 'NAO')
+            . '<br>CA legivel: ' . (is_readable($ca) ? 'SIM' : 'NAO')
+            . '<br>Tamanho: ' . (file_exists($ca) ? filesize($ca) : 0)
+        );
+
         $session = session();
         $db      = \Config\Database::connect();
 
@@ -53,6 +52,7 @@ class Auth extends BaseController
 
                 // Busca as chaves das telas permitidas vinculadas ao perfil do usuário
                 $permissoesQuery = [];
+
                 if (!empty($usuario['perfil_id'])) {
                     $permissoesQuery = $db->table('perfil_permissoes pp')
                                          ->select('t.chave')
@@ -62,7 +62,7 @@ class Auth extends BaseController
                                          ->getResultArray();
                 }
 
-                // Extrai apenas a coluna 'chave' para montar o array (ex: ['cad_carro', 'relatorio_powerbi', ...])
+                // Extrai apenas a coluna 'chave' para montar o array
                 $permissoes = array_column($permissoesQuery, 'chave');
 
                 // Monta os dados da sessão do usuário
@@ -85,12 +85,14 @@ class Auth extends BaseController
 
         // Caso o usuário não seja encontrado ou a senha seja inválida
         $session->setFlashdata('error', 'E-mail ou senha incorretos.');
+
         return redirect()->back()->withInput();
     }
 
     public function logout()
     {
         session()->destroy();
+
         return redirect()->to(site_url('login'));
     }
 }
