@@ -10,6 +10,11 @@ class Database extends Config
 
     public string $defaultGroup = 'default';
 
+    /**
+     * Conexão principal
+     * Os dados de acesso são fornecidos pelas variáveis
+     * de ambiente configuradas na Render.
+     */
     public array $default = [
         'DSN'          => '',
         'hostname'     => '',
@@ -23,13 +28,24 @@ class Database extends Config
         'charset'      => 'utf8mb4',
         'DBCollat'     => 'utf8mb4_general_ci',
         'swapPre'      => '',
-        'encrypt'      => false,
+
+        // SSL obrigatório na Aiven
+        'encrypt'      => [
+            'ssl_key'    => null,
+            'ssl_cert'   => null,
+            'ssl_ca'     => '/etc/secrets/aiven-ca.pem',
+            'ssl_capath' => null,
+            'ssl_cipher' => null,
+            'ssl_verify' => true,
+        ],
+
         'compress'     => false,
         'strictOn'     => false,
         'failover'     => [],
         'port'         => 3306,
         'numberNative' => false,
         'foundRows'    => false,
+
         'dateFormat'   => [
             'date'     => 'Y-m-d',
             'datetime' => 'Y-m-d H:i:s',
@@ -37,6 +53,9 @@ class Database extends Config
         ],
     ];
 
+    /**
+     * Conexão utilizada nos testes automatizados.
+     */
     public array $tests = [
         'DSN'         => '',
         'hostname'    => '127.0.0.1',
@@ -58,7 +77,8 @@ class Database extends Config
         'foreignKeys' => true,
         'busyTimeout' => 1000,
         'synchronous' => null,
-        'dateFormat'  => [
+
+        'dateFormat'   => [
             'date'     => 'Y-m-d',
             'datetime' => 'Y-m-d H:i:s',
             'time'     => 'H:i:s',
