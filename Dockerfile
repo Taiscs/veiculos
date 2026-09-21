@@ -1,42 +1,44 @@
-# Usa a imagem oficial do PHP 8.2 com Apache
 FROM php:8.2-apache
 
-# Instala dependências do sistema e extensões do PHP necessárias para o CodeIgniter
+# Mod Rewrite do Apache
+RUN a2enmod rewrite
+
+# Dependências do sistema e extensões do PHP
 RUN apt-get update && apt-get install -y \
+    libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
     libicu-dev \
-    libzip-dev \
     zip \
     unzip \
     git \
-    && docker-php-ext-configure intl \
-    && docker-php-ext-install intl pdo pdo_mysql mysqli zip \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j$(nproc) gd intl pdo pdo_mysql mysqli
 
-# Copia o Composer oficial
+# Configura o VirtualHost para apontar a DocumentRoot para /var/www/html/public
+ENV APACHE_DOCUMENT_ROOT /var/www/html/public
+
+RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
+RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/conf-available/*.conf
+
+# Habilita AllowOverride All para o .htaccess funcionar
+RUN sed -i 's/AllowOverride None/AllowOverride All/g' /etc/apache2/apache2.conf
+
+# Instala o Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Habilita o módulo mod_rewrite do Apache
-RUN a2enmod rewrite
-
-# Configura o VirtualHost apontando para /public com AllowOverride All explicitamente
-RUN echo '<VirtualHost *:80>\n\
-    DocumentRoot /var/www/html/public\n\
-    <Directory /var/www/html/public>\n\
-        Options Indexes FollowSymLinks\n\
-        AllowOverride All\n\
-        Require all granted\n\
-    </Directory>\n\
-    ErrorLog ${APACHE_LOG_DIR}/error.log\n\
-    CustomLog ${APACHE_LOG_DIR}/access.log combined\n\
-</VirtualHost>' > /etc/apache2/sites-available/000-default.conf
-
+# Define o diretório de trabalho
 WORKDIR /var/www/html
-COPY . /var/www/html
 
-# Instala as dependências do Composer e gera a pasta vendor
+# Copia os arquivos do projeto
+COPY . .
+
+# Instala as dependências do PHP com suporte ao autoloader otimizado
 RUN composer install --no-dev --optimize-autoloader
 
-# Ajusta permissões das pastas de escrita do CodeIgniter
+# Ajusta permissões das pastas graváveis do CodeIgniter
 RUN chown -R www-data:www-data /var/www/html/writable /var/www/html/public
 
 EXPOSE 80
+
+CMD ["apache2-foreground"]
