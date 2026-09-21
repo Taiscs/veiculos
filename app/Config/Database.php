@@ -23,7 +23,7 @@ class Database extends Config
         'charset'      => 'utf8mb4',
         'DBCollat'     => 'utf8mb4_general_ci',
         'swapPre'      => '',
-        'encrypt'      => true,
+        'encrypt'      => false,
         'compress'     => false,
         'strictOn'     => false,
         'failover'     => [],
@@ -81,6 +81,6 @@ class Database extends Config
         $this->default['database'] = getenv('database.default.database') ?: '';
         $this->default['port']     = (int) (getenv('database.default.port') ?: 3306);
         $this->default['DBDriver'] = 'MySQLi';
-        $this->default['encrypt']  = true;
+        $this->default['encrypt']  = false;
     }
 }
