@@ -8,9 +8,9 @@ class Auth extends BaseController
 {
     public function index()
     {
-        // Se já estiver logado, redireciona para o BI
-        if (session()->get('isLoggedIn')) {
-            return redirect()->to(site_url('bi'));
+        // Se já estiver logado, manda para o sistema
+        if (session()->get('logado')) {
+            return redirect()->to('/');
         }
 
         return view('auth/login');
@@ -18,47 +18,49 @@ class Auth extends BaseController
 
     public function login()
     {
-        /*
-         * TESTE TEMPORÁRIO
-         *
-         * Gera uma nova hash usando o próprio PHP
-         * que está rodando na Render.
-         *
-         * Senha temporária: 12345678
-         */
+        $session = session();
 
-        $novaHash = password_hash(
-            '12345678',
-            PASSWORD_DEFAULT
-        );
+        $email = trim((string) $this->request->getPost('email'));
+        $senha = (string) $this->request->getPost('senha');
 
-        echo 'Nova hash:<br><br>';
+        if ($email === '' || $senha === '') {
+            $session->setFlashdata('error', 'Preencha todos os campos.');
 
-        echo htmlspecialchars($novaHash);
+            return redirect()->back()->withInput();
+        }
 
-        echo '<br><br>';
+        $db = \Config\Database::connect();
 
-        echo 'Tamanho da hash: '
-            . strlen($novaHash);
+        // Busca o usuário pelo e-mail
+        $usuario = $db->table('usuarios')
+            ->where('email', $email)
+            ->get()
+            ->getRowArray();
 
-        echo '<br><br>';
+        // Verifica se o usuário existe e se a senha confere
+        if ($usuario && password_verify($senha, $usuario['senha'])) {
 
-        echo 'Teste imediato: ';
+            $session->set([
+                'usuario_id' => $usuario['id'],
+                'nome'       => $usuario['nome'],
+                'email'      => $usuario['email'],
+                'tipo'       => $usuario['tipo'],
+                'perfil_id'  => $usuario['perfil_id'],
+                'logado'     => true,
+            ]);
 
-        echo password_verify(
-            '12345678',
-            $novaHash
-        )
-            ? 'SIM'
-            : 'NAO';
+            return redirect()->to('/');
+        }
 
-        die();
+        $session->setFlashdata('error', 'E-mail ou senha incorretos.');
+
+        return redirect()->back()->withInput();
     }
 
     public function logout()
     {
         session()->destroy();
 
-        return redirect()->to(site_url('login'));
+        return redirect()->to('/login');
     }
 }
