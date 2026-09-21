@@ -8,7 +8,7 @@ class Auth extends BaseController
 {
     public function index()
     {
-        // Se já estiver logado, redireciona para o BI
+        // Se já estiver logado, redireciona para a tela do BI / Dashboard
         if (session()->get('isLoggedIn')) {
             return redirect()->to(site_url('bi'));
         }
@@ -36,18 +36,23 @@ class Auth extends BaseController
                       ->getRowArray();
 
         if ($usuario) {
-            // Verifica a hash da senha
-            if (password_verify($senha, $usuario['senha'])) {
+            // Verifica a hash da senha (ou texto puro caso seja legado)
+            $senhaValida = password_verify($senha, $usuario['senha']) || ($senha === $usuario['senha']);
+
+            if ($senhaValida) {
 
                 // Busca as chaves das telas permitidas vinculadas ao perfil do usuário
-                $permissoesQuery = $db->table('perfil_permissoes pp')
-                                     ->select('t.chave')
-                                     ->join('telas t', 't.id = pp.tela_id')
-                                     ->where('pp.perfil_id', $usuario['perfil_id'])
-                                     ->get()
-                                     ->getResultArray();
+                $permissoesQuery = [];
+                if (!empty($usuario['perfil_id'])) {
+                    $permissoesQuery = $db->table('perfil_permissoes pp')
+                                         ->select('t.chave')
+                                         ->join('telas t', 't.id = pp.tela_id')
+                                         ->where('pp.perfil_id', $usuario['perfil_id'])
+                                         ->get()
+                                         ->getResultArray();
+                }
 
-                // Extrai apenas a coluna 'chave' para montar o array simples (ex: ['cad_carro', 'bi', ...])
+                // Extrai apenas a coluna 'chave' para montar o array (ex: ['cad_carro', 'relatorio_powerbi', ...])
                 $permissoes = array_column($permissoesQuery, 'chave');
 
                 // Monta os dados da sessão do usuário
@@ -63,15 +68,14 @@ class Auth extends BaseController
 
                 $session->set($sessionData);
 
+                // Redireciona diretamente para o BI
                 return redirect()->to(site_url('bi'));
-            } else {
-                $session->setFlashdata('error', 'E-mail ou senha incorretos.');
-                return redirect()->back()->withInput();
             }
-        } else {
-            $session->setFlashdata('error', 'E-mail ou senha incorretos.');
-            return redirect()->back()->withInput();
         }
+
+        // Caso o usuário não seja encontrado ou a senha seja inválida
+        $session->setFlashdata('error', 'E-mail ou senha incorretos.');
+        return redirect()->back()->withInput();
     }
 
     public function logout()
