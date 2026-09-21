@@ -40,5 +40,6 @@ RUN composer install --no-dev --optimize-autoloader
 RUN chown -R www-data:www-data /var/www/html/writable /var/www/html/public
 
 EXPOSE 80
+RUN echo "=== VERIFICANDO DIRETORIO DE SECRETS ==="
 
 CMD ["apache2-foreground"]
